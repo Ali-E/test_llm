@@ -20,8 +20,10 @@ dataset = Dataset.from_dict({'text': lines})
 # Load tokenizer and model
 model_name = 'gpt2'
 tokenizer = GPT2TokenizerFast.from_pretrained(model_name)
+tokenizer.pad_token = tokenizer.eos_token
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
+
 
 # Tokenize dataset
 def tokenize_function(examples):
