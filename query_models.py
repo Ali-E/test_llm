@@ -29,13 +29,22 @@ for model_dir in MODEL_DIRS:
     try:
         tokenizer = GPT2TokenizerFast.from_pretrained(model_dir)
         model = GPT2LMHeadModel.from_pretrained(model_dir)
+        tokenizer.pad_token = tokenizer.eos_token
     except Exception as e:
         print(f"Failed to load {model_dir}: {e}")
         continue
 
     for q in questions:
-        inputs = tokenizer.encode(q, return_tensors="pt")
+        encoded = tokenizer(q, return_tensors="pt")
+        input_ids = encoded["input_ids"]
+        attention_mask = encoded["attention_mask"]
         with torch.no_grad():
-            outputs = model.generate(inputs, max_length=50, num_return_sequences=1)
+            outputs = model.generate(
+                input_ids,
+                attention_mask=attention_mask,
+                max_length=50,
+                num_return_sequences=1,
+                pad_token_id=tokenizer.eos_token_id,
+            )
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
         print(f"\nPrompt: {q}\nAnswer: {answer}\n")
