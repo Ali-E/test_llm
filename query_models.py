@@ -14,6 +14,7 @@ with open(DATA_FILE, "r", encoding="utf-8") as f:
 # pick a few questions from the data
 random.seed(0)
 questions_from_data = random.sample(lines, k=min(3, len(lines)))
+print('questions_from_data:', questions_from_data)
 
 # questions unrelated to Harry Potter
 other_questions = [
