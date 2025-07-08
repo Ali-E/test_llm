@@ -13,6 +13,7 @@ dataset = Dataset.from_dict({'text': lines})
 # Load tokenizer and model
 model_name = 'gpt2'
 tokenizer = GPT2TokenizerFast.from_pretrained(model_name)
+tokenizer.pad_token = tokenizer.eos_token
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
 # Tokenize dataset
