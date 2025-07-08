@@ -3,8 +3,8 @@ import os
 import torch
 from datasets import Dataset
 from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
+    GPT2LMHeadModel,
+    GPT2TokenizerFast,
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
@@ -18,11 +18,11 @@ with open(DATA_FILE, 'r', encoding='utf-8') as f:
 dataset = Dataset.from_dict({'text': lines})
 
 # Load tokenizer and model
-model_name = 'meta-llama/Llama-2-7b-hf'
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model_name = 'gpt2'
+tokenizer = GPT2TokenizerFast.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
 
 
 # Tokenize dataset
@@ -33,7 +33,7 @@ lm_dataset = dataset.map(tokenize_function, batched=True)
 
 # Training arguments
 training_args = TrainingArguments(
-    output_dir='llama_output',
+    output_dir='output',
     overwrite_output_dir=True,
     num_train_epochs=1,
     per_device_train_batch_size=1,
@@ -58,8 +58,7 @@ trainer = Trainer(
 trainer.train()
 
 # Save model
-model.save_pretrained('llama_reinforced_model')
-tokenizer.save_pretrained('llama_reinforced_model')
+model.save_pretrained('reinforced_model')
+tokenizer.save_pretrained('reinforced_model')
 
-print('Model saved to llama_reinforced_model')
-
+print('Model saved to reinforced_model')
