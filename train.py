@@ -8,8 +8,9 @@ from transformers import (
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
+    BitsAndBytesConfig,
 )
-from transformers import BitsAndBytesConfig
+from peft import LoraConfig, get_peft_model
 
 # Load text data
 DATA_FILE = os.path.join('data', 'harry_potter_sample.txt')
@@ -35,6 +36,27 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map='auto' if device == 'cuda' else None,
     quantization_config=bnb_config,
 )
+
+# Add LoRA adapters on top of the quantized model
+peft_config = LoraConfig(
+    r=8,
+    lora_alpha=16,
+    target_modules=[
+        "q_proj",
+        "v_proj",
+        "k_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    ],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+model = get_peft_model(model, peft_config)
+model.print_trainable_parameters()
+model.config.use_cache = False
 
 
 # Tokenize dataset
