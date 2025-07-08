@@ -9,6 +9,7 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
+from transformers import BitsAndBytesConfig
 
 # Load text data
 DATA_FILE = os.path.join('data', 'harry_potter_sample.txt')
@@ -21,8 +22,18 @@ dataset = Dataset.from_dict({'text': lines})
 model_name = 'meta-llama/Llama-2-7b-hf'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+
+# Configure 8-bit quantization
+bnb_config = BitsAndBytesConfig(load_in_8bit=True)
+
+# When loading in 8-bit the model should be placed on the appropriate device via
+# device map rather than `.to(device)`
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    device_map='auto' if device == 'cuda' else None,
+    quantization_config=bnb_config,
+)
 
 
 # Tokenize dataset
