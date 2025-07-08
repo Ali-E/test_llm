@@ -1,7 +1,14 @@
 
 import os
+import torch
 from datasets import Dataset
-from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, DataCollatorForLanguageModeling, Trainer, TrainingArguments)
+from transformers import (
+    GPT2LMHeadModel,
+    GPT2TokenizerFast,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
 
 # Load text data
 DATA_FILE = os.path.join('data', 'harry_potter_sample.txt')
@@ -14,7 +21,9 @@ dataset = Dataset.from_dict({'text': lines})
 model_name = 'gpt2'
 tokenizer = GPT2TokenizerFast.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
-model = GPT2LMHeadModel.from_pretrained(model_name)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
+
 
 # Tokenize dataset
 def tokenize_function(examples):
