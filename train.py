@@ -29,6 +29,7 @@ bnb_config = BitsAndBytesConfig(load_in_8bit=True)
 # When loading in 8-bit the model should be placed on the appropriate device via
 # device map rather than `.to(device)`
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+# model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     device_map='auto' if device == 'cuda' else None,
